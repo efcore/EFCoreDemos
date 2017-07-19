@@ -16,12 +16,7 @@ namespace Demos
 
             using (var db = new BloggingContext())
             {
-                var counts = db.Blogs.Select(b => BloggingContext.ComputePostCount(b.BlogId));
-
-                foreach (var count in counts)
-                {
-                    Console.WriteLine(count);
-                }
+                
             }
         }
 

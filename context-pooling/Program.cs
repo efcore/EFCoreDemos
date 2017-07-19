@@ -21,10 +21,8 @@ namespace Demos
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .AddDbContextPool<BloggingContext>(
-                    c => c.UseSqlServer(
-                        @"Server=(localdb)\mssqllocaldb;Database=Demo.ContextPooling;Trusted_Connection=True;ConnectRetryCount=0;"),
-                    16)
+                .AddDbContext<BloggingContext>(c => c.UseSqlServer(
+                        @"Server=(localdb)\mssqllocaldb;Database=Demo.ContextPooling;Trusted_Connection=True;ConnectRetryCount=0;"))
                 .BuildServiceProvider();
 
             SetupDatabase(serviceProvider);
