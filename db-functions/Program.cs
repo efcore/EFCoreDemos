@@ -16,7 +16,12 @@ namespace Demos
 
             using (var db = new BloggingContext())
             {
-                
+                var counts = db.Blogs.Select(b => BloggingContext.ComputePostCount(b.BlogId));
+
+                foreach (var count in counts)
+                {
+                    Console.WriteLine(count);
+                }
             }
         }
 
@@ -56,13 +61,8 @@ namespace Demos
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Demo.DbFunctions;Trusted_Connection=True;")
+                .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Demo.DbFunctions;Trusted_Connection=True;ConnectRetryCount=0")
                 .UseLoggerFactory(new LoggerFactory().AddConsole());
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.HasDbFunction(() => ComputePostCount(0));
         }
 
         [DbFunction(Schema="dbo")]

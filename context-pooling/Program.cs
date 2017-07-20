@@ -21,7 +21,7 @@ namespace Demos
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .AddDbContext<BloggingContext>(c => c.UseSqlServer(
+                .AddDbContextPool<BloggingContext>(c => c.UseSqlServer(
                         @"Server=(localdb)\mssqllocaldb;Database=Demo.ContextPooling;Trusted_Connection=True;ConnectRetryCount=0;"))
                 .BuildServiceProvider();
 
@@ -30,6 +30,7 @@ namespace Demos
             MonitorResults();
 
             var tasks = new Task[Threads];
+            
             for (var i = 0; i < tasks.Length; i++)
             {
                 tasks[i] = SimulateContinualRequests(serviceProvider);
@@ -45,6 +46,7 @@ namespace Demos
                 using (var serviceScope = serviceProvider.CreateScope())
                 {
                     var context = serviceScope.ServiceProvider.GetService<BloggingContext>();
+                    
                     await context.Blogs.FirstAsync();
                 }
 

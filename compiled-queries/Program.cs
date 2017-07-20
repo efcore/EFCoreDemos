@@ -50,8 +50,8 @@ namespace Demos
         private static void RunTest(Action<string[]> test, string name)
         {
             var accountNumbers = GetAccountNumbers(500);
-
             var stopwatch = new Stopwatch();
+            
             stopwatch.Start();
 
             test(accountNumbers);

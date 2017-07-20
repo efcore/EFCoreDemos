@@ -10,11 +10,12 @@ namespace Demos
         {
             RecreateDatabase();
 
-            Console.Write(" Inserting Data......");
+            Console.Write("Inserting Data......");
 
             using (var db = new CustomerContext())
             {
                 var usa = new Country { Id = "USA", Name = "United States of America" };
+                
                 db.Add(usa);
 
                 db.Customers.Add(new Customer
@@ -58,11 +59,15 @@ namespace Demos
             {
                 Console.WriteLine("Recreating database from current model");
                 Console.Write(" Dropping database...");
+                
                 db.Database.EnsureDeleted();
+
                 Console.WriteLine(" done");
 
                 Console.Write(" Creating database...");
+
                 db.Database.EnsureCreated();
+
                 Console.WriteLine(" done");
             }
         }
@@ -75,20 +80,14 @@ namespace Demos
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Demo.OwnedTypes;Trusted_Connection=True;")
+                .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Demo.OwnedTypes;Trusted_Connection=True;ConnectRetryCount=0;")
                 .UseLoggerFactory(new LoggerFactory().AddConsole());
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Customer>()
-                .OwnsOne(c => c.WorkAddress)
-                .OwnsOne(a => a.Location);
-
-            modelBuilder.Entity<Customer>()
-                .OwnsOne(c => c.PhysicalAddress)
-                .ToTable("Customers_Location")
-                .OwnsOne(a => a.Location);
+            // Fluent configuration of owned types.
+            
         }
     }
 

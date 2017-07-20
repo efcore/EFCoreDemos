@@ -115,11 +115,10 @@ namespace Demos
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Post>().HasQueryFilter(p => !p.IsDeleted);
-
-            modelBuilder.Entity<Blog>().Property<string>("TenantId").HasField("_tenantId").Metadata.AfterSaveBehavior =
-                PropertySaveBehavior.Ignore;
-            modelBuilder.Entity<Blog>().HasQueryFilter(b => EF.Property<string>(b, "TenantId") == _tenantId);
+            modelBuilder.Entity<Blog>().Property<string>("TenantId").HasField("_tenantId");
+            
+            // Configure entity filters
+            
         }
 
         public override int SaveChanges()
