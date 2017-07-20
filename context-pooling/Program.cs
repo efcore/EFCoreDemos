@@ -21,7 +21,7 @@ namespace Demos
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .AddDbContextPool<BloggingContext>(c => c.UseSqlServer(
+                .AddDbContext<BloggingContext>(c => c.UseSqlServer(
                         @"Server=(localdb)\mssqllocaldb;Database=Demo.ContextPooling;Trusted_Connection=True;ConnectRetryCount=0;"))
                 .BuildServiceProvider();
 
@@ -89,7 +89,7 @@ namespace Demos
                 var currentRequests = thisRequestCount - lastRequestCount;
 
                 Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] "
-                                  + $"Context creations: {thisInstanceCount - lastInstanceCount} | "
+                                  + $"Context creations per second: {thisInstanceCount - lastInstanceCount} | "
                                   + $"Requests per second: {Math.Round(currentRequests / currentElapsed.TotalSeconds)}");
 
                 lastInstanceCount = thisInstanceCount;
