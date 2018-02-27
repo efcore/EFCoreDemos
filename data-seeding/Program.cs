@@ -19,6 +19,8 @@ namespace Demos
                         $"Id = {theme.ThemeId}, Name = {theme.Name}, Color = {theme.TitleColor}");
                 }
             }
+
+            Console.Read();
         }
     }
 
@@ -54,7 +56,9 @@ namespace Demos
                 .SeedData(
                     new Theme { ThemeId = 1, Name = "MSDN", TitleColor = Color.Red.Name },
                     new Theme { ThemeId = 2, Name = "TechNet", TitleColor = Color.DarkCyan.Name },
-                    new Theme { ThemeId = 3, Name = "Personal", TitleColor = Color.LightBlue.Name });
+                    new Theme { ThemeId = 3, Name = "Docs", TitleColor = Color.FloralWhite.Name },
+                    new Theme { ThemeId = 4, Name = "VS Developer Community", TitleColor = Color.LightBlue.Name },
+                    new Theme { ThemeId = 5, Name = "Personal", TitleColor = Color.LightGreen.Name });
         }
     }
 }

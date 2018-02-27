@@ -35,6 +35,8 @@ namespace Demos
 
                     Console.WriteLine();
                 }
+
+                Console.Read();
             }
         }
 

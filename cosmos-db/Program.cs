@@ -12,7 +12,7 @@ namespace Demos
 {
     public class Program
     {
-        public static void Main()
+        public static void Main(string[] args)
         {
             var blogId = 1;
             var postId = 1;
@@ -44,7 +44,7 @@ namespace Demos
                             },
                             new Post
                             {
-                                PostId = postId,
+                                PostId = postId++,
                                 Title = "Getting Started with ADO.NET"
                             }
                         }

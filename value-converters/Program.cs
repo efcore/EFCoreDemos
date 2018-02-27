@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Drawing;
+﻿using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -13,7 +15,25 @@ namespace Demos
         {
             using (var db = new BloggingContext())
             {
+                db.Database.EnsureDeleted();
+                db.Database.EnsureCreated();
+
+                db.AddRange(
+                    new Theme { Name = "MSDN", TitleColor = Color.Red },
+                    new Theme { Name = "TechNet", TitleColor = Color.Red },
+                    new Theme { Name = "Personal", TitleColor = Color.LightBlue });
+
+                db.SaveChanges();
             }
+
+            Console.Read();
+
+            using (var db = new BloggingContext())
+            {
+
+            }
+
+            Console.Read();
         }
     }
 
@@ -34,26 +54,20 @@ namespace Demos
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder
-                .Entity<Theme>()
-                .SeedData(
-                    new Theme { ThemeId = 1, Name = "MSDN", TitleColor = Color.Red.Name },
-                    new Theme { ThemeId = 2, Name = "TechNet", TitleColor = Color.Red.Name },
-                    new Theme { ThemeId = 3, Name = "Personal", TitleColor = Color.LightBlue.Name });
-        }
 
-        public class Blog
-        {
-            public int BlogId { get; set; }
-            public string BlogUrl { get; set; }
-            public Theme Theme { get; set; }
         }
+    }
 
-        public class Theme
-        {
-            public uint ThemeId { get; set; }
-            public string Name { get; set; }
-            public string TitleColor { get; set; }
-        }
+    public class Theme
+    {
+        public uint ThemeId { get; set; }
+        public string Name { get; set; }
+        public Color TitleColor { get; set; }
+    }
+
+    public enum Color
+    {
+        Red,
+        LightBlue
     }
 }
