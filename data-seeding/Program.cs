@@ -53,7 +53,7 @@ namespace Demos
         {
             modelBuilder
                 .Entity<Theme>()
-                .SeedData(
+                .HasData(
                     new Theme { ThemeId = 1, Name = "MSDN", TitleColor = Color.Red.Name },
                     new Theme { ThemeId = 2, Name = "TechNet", TitleColor = Color.DarkCyan.Name },
                     new Theme { ThemeId = 3, Name = "Docs", TitleColor = Color.FloralWhite.Name },
