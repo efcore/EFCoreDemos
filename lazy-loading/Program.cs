@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 
 namespace Demos
@@ -96,8 +95,11 @@ namespace Demos
         {
             optionsBuilder
                 .UseSqlServer(
-                    @"Server=(localdb)\mssqllocaldb;Database=Demo.LazyLoading;Trusted_Connection=True;ConnectRetryCount=0;")
-                .UseLazyLoadingProxies();
+                    @"Server=(localdb)\mssqllocaldb;Database=Demo.LazyLoading;Trusted_Connection=True;ConnectRetryCount=0;");
+
+            // Enable lazy loading:
+            // optionsBuilder
+            //   .UseLazyLoadingProxies();
         }
     }
 
@@ -107,7 +109,33 @@ namespace Demos
         public string Name { get; set; }
         public string Url { get; set; }
 
+        // No lazy loading:
         public ICollection<Post> Posts { get; set; }
+
+        // Lazy loading with proxies:
+        //public virtual ICollection<Post> Posts { get; set; }
+
+        // Manual lazy loading:
+        //private readonly Action<object, string> _lazyLoader;
+
+        //public Blog() =>
+        //    _lazyLoader = null;
+
+        //private Blog(Action<object, string> lazyLoader) =>
+        //    _lazyLoader = lazyLoader;
+
+        //private ICollection<Post> _posts;
+
+        //public ICollection<Post> Posts
+        //{
+        //    get
+        //    {
+        //        _lazyLoader?.Invoke(this, nameof(Posts));
+        //        return _posts;
+        //    }
+
+        //    set => _posts = value;
+        //}
     }
 
     public class Post

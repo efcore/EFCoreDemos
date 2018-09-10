@@ -1,5 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,19 @@ namespace Demos
 
             using (var db = new OrdersContext())
             {
+                var orderSummaries = db.OrderSummaries;
+
+                // Use query type with FromSql
+                //var orderSummaries = orderSummaries.FromSql(
+                //        @"SELECT o.Amount, p.Name AS ProductName, c.Name AS CustomerName
+                //        FROM Orders o
+                //        INNER JOIN Product p ON o.ProductId = p.Id
+                //        INNER JOIN Customer c ON o.CustomerId = c.Id");
+
+                foreach (var orderSummary in orderSummaries)
+                {
+                    Console.WriteLine(orderSummary);
+                }
             }
 
             Console.Read();
@@ -42,12 +56,13 @@ namespace Demos
 
                     db.SaveChanges();
 
-                    db.Database.ExecuteSqlCommand(
-                        @"CREATE VIEW [OrderSummary] AS
-                            SELECT o.Amount, p.Name AS ProductName, c.Name AS CustomerName
-                            FROM Orders o
-                            INNER JOIN Product p ON o.ProductId = p.Id
-                            INNER JOIN Customer c ON o.CustomerId = c.Id");
+                    // Map to database view
+                    //db.Database.ExecuteSqlCommand(
+                    //    @"CREATE VIEW [OrderSummaries] AS
+                    //        SELECT o.Amount, p.Name AS ProductName, c.Name AS CustomerName
+                    //        FROM Orders o
+                    //        INNER JOIN Product p ON o.ProductId = p.Id
+                    //        INNER JOIN Customer c ON o.CustomerId = c.Id");
                 }
             }
         }
@@ -58,10 +73,13 @@ namespace Demos
                 .AddConsole((s, l) => l == LogLevel.Information && s.EndsWith("Command"));
 
             public DbSet<Order> Orders { get; set; }
+            public DbQuery<OrderSummary> OrderSummaries { get; set; }
+
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                // Configure a view type
+                // Map to SQL query
+                //modelBuilder.Query<OrderSummary>().ToQuery(() => ...);
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -78,6 +96,19 @@ namespace Demos
             public int Amount { get; set; }
             public Product Product { get; set; }
             public Customer Customer { get; set; }
+        }
+
+        // Query type
+        public class OrderSummary
+        {
+            public int Amount { get; set; }
+            public string ProductName { get; set; }
+            public string CustomerName { get; set; }
+
+            public override string ToString()
+            {
+                return $"{CustomerName} ordered {Amount} of {ProductName}";
+            }
         }
 
         public class Product

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -16,6 +17,13 @@ namespace Demos
             using (var db = new BloggingContext())
             {
                 // Query with a DbFunction
+                var mostUsedBlogs = db.Blogs
+                    .OrderByDescending(b => BloggingContext.ComputePostCount(b.BlogId))
+                    .Select(b => new { b.Url, Posts = BloggingContext.ComputePostCount(b.BlogId) });
+                foreach(var blog in mostUsedBlogs)
+                {
+                    System.Console.WriteLine($"Url: {blog.Url}, Posts: {blog.Posts}");
+                }
             }
         }
 

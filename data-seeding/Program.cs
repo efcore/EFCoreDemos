@@ -4,6 +4,7 @@
 using System;
 using System.Drawing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Demos
 {
@@ -40,17 +41,22 @@ namespace Demos
 
     public class BloggingContext : DbContext
     {
+        private static readonly ILoggerFactory _loggerFactory = new LoggerFactory()
+            .AddConsole((s, l) => l == LogLevel.Information && s.EndsWith("Command"));
+
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Theme> Themes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Demo.DataSeeding;Trusted_Connection=True;ConnectRetryCount=0");
+                .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Demo.DataSeeding;Trusted_Connection=True;ConnectRetryCount=0")
+                .UseLoggerFactory(_loggerFactory);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Seed data
             modelBuilder
                 .Entity<Theme>()
                 .HasData(

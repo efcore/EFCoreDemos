@@ -7,8 +7,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-#pragma warning disable 169
-
 namespace Demos
 {
     public class Program
@@ -129,12 +127,15 @@ namespace Demos
             modelBuilder.Entity<Blog>().Property<string>("TenantId").HasField("_tenantId");
 
             // Configure entity filters
+            modelBuilder.Entity<Blog>().HasQueryFilter(b => EF.Property<string>(b, "TenantId") == _tenantId);
+            modelBuilder.Entity<Post>().HasQueryFilter(p => !p.IsDeleted);
         }
 
         public override int SaveChanges()
         {
             ChangeTracker.DetectChanges();
 
+            // Save blogs with tenant id
             foreach (var item
                 in ChangeTracker.Entries()
                     .Where(
@@ -145,6 +146,7 @@ namespace Demos
                 item.CurrentValues["TenantId"] = _tenantId;
             }
 
+            // Save posts with soft deletes
             foreach (var item
                 in ChangeTracker.Entries<Post>()
                     .Where(e => e.State == EntityState.Deleted))

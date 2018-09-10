@@ -85,6 +85,8 @@ namespace Demos
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Fluent configuration of owned types.
+            modelBuilder.Entity<Customer>().OwnsOne(c => c.HomeAddress);
+            modelBuilder.Entity<Customer>().OwnsOne(c => c.WorkAddress);
         }
     }
 

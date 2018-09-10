@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -37,13 +40,15 @@ namespace Demos
 
     public class BloggingContext : DbContext
     {
+        private static readonly ILoggerFactory _loggerFactory = new LoggerFactory().AddConsole();
+
         public DbSet<Blog> Blogs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
                 .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Demo.EF101;Trusted_Connection=True;")
-                .UseLoggerFactory(new LoggerFactory().AddConsole());
+                .UseLoggerFactory(_loggerFactory);
         }
     }
 
