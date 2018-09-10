@@ -1,4 +1,4 @@
-# Entity Framewrk Core Demos
+# Entity Framework Core Demos
 
 Here we keep the source code for some demos we ususually use for conference talks about EF Core like
 - [What's New in Entity Framework Core 2.0, .NET Conf 2017](https://www.youtube.com/watch?v=0pUVC3trvHc)
