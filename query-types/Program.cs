@@ -85,7 +85,7 @@ namespace Demos
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder
-                    .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Demo.ViewTypes;Trusted_Connection=True;ConnectRetryCount=0")
+                    .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Demo.QueryTypes;Trusted_Connection=True;ConnectRetryCount=0")
                     .UseLoggerFactory(_loggerFactory);
             }
         }
