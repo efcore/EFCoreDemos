@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -10,39 +11,40 @@ namespace Demos
     {
         private static void Main(string[] args)
         {
-            using (var context = new CampusContext())
+            using (var context = new SensorContext())
             {
                 context.SetupDatabase();
             }
 
-            using (var context = new CampusContext())
+            using (var context = new SensorContext())
             {
 
                 var currentLocation = new Point(0, 0);
 
-                var nearestBuildings =
-                    from t in context.Buildings
+                var nearestMesurements =
+                    from m in context.Measurements
                     // Query tag   
                     // .WithTag(@"This is my spatial query!")
-                    where t.Location.Distance(currentLocation) < 2
-                    select t;
+                    where m.Location.Distance(currentLocation) < 2.5
+                    orderby m.Location.Distance(currentLocation) descending
+                    select m;
 
-                foreach (var building in nearestBuildings)
+                foreach (var m in nearestMesurements)
                 {
-                    System.Console.WriteLine($"Building {building.Name} is located in {building.Location}");
+                    Console.WriteLine($"A temperature of {m.Temperature} was detected on {m.Time} at {m.Location}.");
                 }
             }
 
         }
     }
 
-    public class CampusContext : DbContext
+    public class SensorContext : DbContext
     {
         private static readonly ILoggerFactory _loggerFactory = new LoggerFactory()
             .AddConsole((s, l) => l == LogLevel.Information && s.EndsWith("Command"));
 
 
-        public DbSet<Building> Buildings { get; set; }
+        public DbSet<Measurement> Measurements { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
@@ -62,21 +64,20 @@ namespace Demos
             Database.EnsureDeleted();
             Database.EnsureCreated();
             AddRange(
-                new Building { Location = new Point(1, 1), Name = "35" },
-                new Building { Location = new Point(1, 2), Name = "18" },
-                new Building { Location = new Point(2, 1), Name = "24" },
-                new Building { Location = new Point(2, 2), Name = "3" },
-                new Building { Location = new Point(0, 0), Name = "44" });
+              new Measurement { Time = DateTime.Now, Location = new Point(0, 0), Temperature = 0.0 },
+              new Measurement { Time = DateTime.Now, Location = new Point(1, 1), Temperature = 0.1 },
+              new Measurement { Time = DateTime.Now, Location = new Point(1, 2), Temperature = 0.2 },
+              new Measurement { Time = DateTime.Now, Location = new Point(2, 1), Temperature = 0.3 },
+              new Measurement { Time = DateTime.Now, Location = new Point(2, 2), Temperature = 0.4 });
             SaveChanges();
         }
     }
 
-    public class Building
+    public class Measurement
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-
+        public DateTime Time { get; set; }
         public Point Location { get; set; }
-        
+        public double Temperature { get; set; }
     }
 }
