@@ -14,17 +14,17 @@ namespace Demos
             using (var context = new SensorContext())
             {
                 context.SetupDatabase();
+                Console.ReadLine();
             }
 
             using (var context = new SensorContext())
             {
-
                 var currentLocation = new Point(0, 0);
 
+                // Step 2: To use tag in follow query add following code after context.Measurements
+                // .WithTag("This is my spatial query!")
                 var nearestMesurements =
                     from m in context.Measurements
-                    // Query tag   
-                    // .WithTag(@"This is my spatial query!")
                     where m.Location.Distance(currentLocation) < 2.5
                     orderby m.Location.Distance(currentLocation) descending
                     select m;
@@ -34,7 +34,6 @@ namespace Demos
                     Console.WriteLine($"A temperature of {m.Temperature} was detected on {m.Time} at {m.Location}.");
                 }
             }
-
         }
     }
 
@@ -43,20 +42,16 @@ namespace Demos
         private static readonly ILoggerFactory _loggerFactory = new LoggerFactory()
             .AddConsole((s, l) => l == LogLevel.Information && s.EndsWith("Command"));
 
-
         public DbSet<Measurement> Measurements { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            // Step 1: To swith to Sqlite provider, remove call to UseSqlServer and add following
+            // .UseSqlite("filename=demo.db", sqlOptions => sqlOptions.UseNetTopologySuite())
             optionsBuilder
                 .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Demo.Spatial;Trusted_Connection=True;ConnectRetryCount=0",
                         sqlOptions => sqlOptions.UseNetTopologySuite())
                 .UseLoggerFactory(_loggerFactory);
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            // Change the underlying type
-            // modelBuilder.Entity<Building>().Property(b => b.Location).HasColumnType("Geography");
         }
 
         public void SetupDatabase()
