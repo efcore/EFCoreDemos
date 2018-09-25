@@ -12,15 +12,15 @@ namespace Demos
 {
     public class Program
     {
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
 
             using (var cosmosDb = new BloggingContext())
             {
                 // Recreate database
 
-                await cosmosDb.Database.EnsureDeletedAsync();
-                await cosmosDb.Database.EnsureCreatedAsync();
+                cosmosDb.Database.EnsureDeleted();
+                cosmosDb.Database.EnsureCreated();
 
                 Console.WriteLine("Database created.");
                 Console.ReadLine();
@@ -59,7 +59,7 @@ namespace Demos
                         Url = "http://blogs.msdn.com/dotnet"
                     });
 
-                var affected = await cosmosDb.SaveChangesAsync();
+                var affected = cosmosDb.SaveChanges();
 
                 Console.WriteLine($"Saved {affected} records to Cosmos DB");
                 Console.ReadLine();
@@ -91,7 +91,7 @@ namespace Demos
 
                 blog1.Posts[0].Content = "Content Removed";
 
-                var affected = await cosmosDb.SaveChangesAsync();
+                var affected = cosmosDb.SaveChanges();
 
                 Console.WriteLine($"Saved {affected} records to Cosmos DB");
                 Console.ReadLine();
