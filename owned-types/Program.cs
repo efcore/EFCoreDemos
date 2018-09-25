@@ -18,34 +18,6 @@ namespace Demos
 
             using (var db = new CustomerContext())
             {
-                // Step 4: Replace following block with this
-                // db.Customers.Add(
-                //     new Customer
-                //     {
-                //         Name = "Diego",
-                //         Addresses = new List<Address>
-                //         {
-                 
-                //             new Address
-                //             {
-                //                 LineOne = "Microsoft Campus",
-                //                 LineTwo = "One Microsoft Way",
-                //                 CityOrTown = "Redmond",
-                //                 PostalOrZipCode = "98052",
-                //                 StateOrProvince = "WA",
-                //                 CountryName = "United States of America"
-                //             },
-                //             new Address
-                //             {
-                //                 LineOne = "Washington State Convention Center",
-                //                 LineTwo = "705 Pike St",
-                //                 CityOrTown = "Seattle",
-                //                 PostalOrZipCode = "98101",
-                //                 StateOrProvince = "WA",
-                //                 CountryName = "United States of America"
-                //             }
-                //         }
-                //     });
                 db.Customers.Add(
                     new Customer
                     {
@@ -114,8 +86,6 @@ namespace Demos
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Fluent configuration of owned types.
-            // Step 3: Remove following 2 lines and add following line
-            // modelBuilder.Entity<Customer>().OwnsMany(c => c.Addresses);
             modelBuilder.Entity<Customer>().OwnsOne(c => c.HomeAddress);
             modelBuilder.Entity<Customer>().OwnsOne(c => c.WorkAddress);
         }
@@ -126,16 +96,12 @@ namespace Demos
         public int CustomerId { get; set; }
         public string Name { get; set; }
 
-        // Step 1: Remove below 2 lines and add following line
-        // public List<Address> Addresses { get; set; }
         public Address WorkAddress { get; set; }
         public Address HomeAddress { get; set; }
     }
 
     public class Address
     {
-        // Step 2: Add Id property to be used for PK
-        // public int Id { get; set; }
         public string LineOne { get; set; }
         public string LineTwo { get; set; }
         public string PostalOrZipCode { get; set; }

@@ -21,8 +21,6 @@ namespace Demos
             {
                 var currentLocation = new Point(0, 0);
 
-                // Step 2: To use tag in follow query add following code after context.Measurements
-                // .WithTag("This is my spatial query!")
                 var nearestMesurements =
                     from m in context.Measurements
                     where m.Location.Distance(currentLocation) < 2.5
@@ -46,8 +44,6 @@ namespace Demos
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Step 1: To swith to Sqlite provider, remove call to UseSqlServer and add following
-            // .UseSqlite("filename=demo.db", sqlOptions => sqlOptions.UseNetTopologySuite())
             optionsBuilder
                 .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Demo.Spatial;Trusted_Connection=True;ConnectRetryCount=0",
                         sqlOptions => sqlOptions.UseNetTopologySuite())
