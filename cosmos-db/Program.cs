@@ -23,54 +23,46 @@ namespace Demos
                 await cosmosDb.Database.EnsureCreatedAsync();
 
                 Console.WriteLine("Database created.");
+                Console.ReadLine();
 
                 // Add some data...
-                Console.WriteLine();
-
-                var id = 1;
-
                 cosmosDb.Blogs.AddRange(
                     new Blog
                     {
-                        BlogId = id++,
+                        BlogId = 1,
                         Name = "ADO.NET",
                         Url = "http://blogs.msdn.com/adonet",
                         Posts = new List<Post>
                         {
                             new Post
                             {
-                                PostId = id++,
+                                PostId = 1,
                                 Title = "Welcome to this blog!"
                             },
                             new Post
                             {
-                                PostId = id++,
+                                PostId = 2,
                                 Title = "Getting Started with ADO.NET"
                             }
                         }
                     },
                     new Blog
                     {
-                        BlogId = id++,
+                        BlogId = 2,
                         Name = "ASP.NET",
                         Url = "http://blogs.msdn.com/aspnet"
                     },
                     new Blog
                     {
-                        BlogId = id++,
+                        BlogId = 3,
                         Name = ".NET",
                         Url = "http://blogs.msdn.com/dotnet"
-                    },
-                    new SpecialBlog
-                    {
-                        BlogId = id++,
-                        Name = "SpecialBlog",
-                        Url = "http://blogs.msdn.com/special"
                     });
 
                 var affected = await cosmosDb.SaveChangesAsync();
 
                 Console.WriteLine($"Saved {affected} records to Cosmos DB");
+                Console.ReadLine();
             }
 
             using (var cosmosDb = new BloggingContext())
@@ -79,9 +71,10 @@ namespace Demos
 
                 foreach (var blog in cosmosDb.Blogs)
                 {
-                    Console.WriteLine($"{blog.GetType()} - {blog.Name} - {blog.Url}");
+                    Console.WriteLine($"{blog.Name} - {blog.Url}");
                 }
 
+                Console.ReadLine();
                 Console.WriteLine("Loading posts for ADO.NET blog...");
 
                 var blog1 = cosmosDb.Blogs.Single(b => b.Name == "ADO.NET");
@@ -93,6 +86,7 @@ namespace Demos
                     Console.WriteLine($" - {post.Title}");
                 }
 
+                Console.ReadLine();
                 Console.Write("Modifying post of the blog...");
 
                 blog1.Posts[0].Content = "Content Removed";
@@ -100,6 +94,7 @@ namespace Demos
                 var affected = await cosmosDb.SaveChangesAsync();
 
                 Console.WriteLine($"Saved {affected} records to Cosmos DB");
+                Console.ReadLine();
             }
         }
     }
@@ -107,10 +102,9 @@ namespace Demos
     public class BloggingContext : DbContext
     {
         private static readonly ILoggerFactory loggerFactory = new LoggerFactory()
-            .AddConsole((s, l) => l == LogLevel.Debug && s.EndsWith("Query"));
+            .AddConsole((s, l) => l == LogLevel.Debug && s.EndsWith("Command"));
 
         public DbSet<Blog> Blogs { get; set; }
-        public DbSet<SpecialBlog> SpecialBlogs { get; set; }
         public DbSet<Post> Posts { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -132,11 +126,6 @@ namespace Demos
         public string Name { get; set; }
         public string Url { get; set; }
         public List<Post> Posts { get; set; }
-    }
-
-    public class SpecialBlog : Blog
-    {
-        public string Special { get; set; }
     }
 
     public class Post
