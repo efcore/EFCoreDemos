@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -15,18 +15,18 @@ namespace Demos
         public static void Main(string[] args)
         {
 
-            using (var cosmosDb = new BloggingContext())
+            using (var context = new BloggingContext())
             {
                 // Recreate database
 
-                cosmosDb.Database.EnsureDeleted();
-                cosmosDb.Database.EnsureCreated();
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
 
                 Console.WriteLine("Database created.");
                 Console.ReadLine();
 
                 // Add some data...
-                cosmosDb.Blogs.AddRange(
+                context.Blogs.AddRange(
                     new Blog
                     {
                         BlogId = 1,
@@ -37,12 +37,31 @@ namespace Demos
                             new Post
                             {
                                 PostId = 1,
-                                Title = "Welcome to this blog!"
+                                Title = "Welcome to this blog!",
+                                Tags = new List<Tag>
+                                {
+                                    new Tag
+                                    {
+                                        Name = "Meta"
+                                    }
+                                }
+
                             },
                             new Post
                             {
                                 PostId = 2,
-                                Title = "Getting Started with ADO.NET"
+                                Title = "Getting Started with ADO.NET",
+                                Tags = new List<Tag>
+                                {
+                                    new Tag
+                                    {
+                                        Name = "Entity Framework Core"
+                                    },
+                                    new Tag
+                                    {
+                                        Name = "ADO.NET"
+                                    }
+                                }
                             }
                         }
                     },
@@ -59,17 +78,17 @@ namespace Demos
                         Url = "http://blogs.msdn.com/dotnet"
                     });
 
-                var affected = cosmosDb.SaveChanges();
+                var affected = context.SaveChanges();
 
                 Console.WriteLine($"Saved {affected} records to Cosmos DB");
                 Console.ReadLine();
             }
 
-            using (var cosmosDb = new BloggingContext())
+            using (var context = new BloggingContext())
             {
                 Console.WriteLine("Executing query for all blogs...");
 
-                foreach (var blog in cosmosDb.Blogs)
+                foreach (var blog in context.Blogs)
                 {
                     Console.WriteLine($"{blog.Name} - {blog.Url}");
                 }
@@ -77,11 +96,11 @@ namespace Demos
                 Console.ReadLine();
                 Console.WriteLine("Loading posts for ADO.NET blog...");
 
-                var blog1 = cosmosDb.Blogs.Single(b => b.Name == "ADO.NET");
+                var adonetBlog = context.Blogs.Single(b => b.Name == "ADO.NET");
 
-                cosmosDb.Entry(blog1).Collection(b => b.Posts).Load();
+                context.Entry(adonetBlog).Collection(b => b.Posts).Load();
 
-                foreach (var post in blog1.Posts)
+                foreach (var post in adonetBlog.Posts)
                 {
                     Console.WriteLine($" - {post.Title}");
                 }
@@ -89,9 +108,9 @@ namespace Demos
                 Console.ReadLine();
                 Console.Write("Modifying post of the blog...");
 
-                blog1.Posts[0].Content = "Content Removed";
+                adonetBlog.Posts[0].Content = "Content Removed";
 
-                var affected = cosmosDb.SaveChanges();
+                var affected = context.SaveChanges();
 
                 Console.WriteLine($"Saved {affected} records to Cosmos DB");
                 Console.ReadLine();
@@ -110,7 +129,7 @@ namespace Demos
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                .UseCosmosSql(
+                .UseCosmos(
                     "https://localhost:8081",
                     "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
                     "EFCoreDemo")
@@ -133,5 +152,13 @@ namespace Demos
         public int PostId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
+        public List<Tag> Tags { get; set; }
+    }
+
+    [Owned]
+    public class Tag
+    {
+        [Key]
+        public string Name { get; set; }
     }
 }
