@@ -1,78 +1,48 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using GeoAPI.Geometries;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using SpatialDemo.Models;
 
-namespace Demos
+namespace SpatialDemo
 {
-    internal class Program
+    class Program
     {
-        private static void Main(string[] args)
+        static void Main()
         {
-            using (var context = new SensorContext())
+            var currentLocation = new Point(-122.128822, 47.643703) { SRID = 4326 };
+
+            using (var db = new WideWorldImportersContext())
             {
-                context.SetupDatabase();
-                Console.ReadLine();
-            }
+                var nearestCity = db.Cities
+                    .OrderBy(c => c.Location.Distance(currentLocation))
+                    .FirstOrDefault();
+                Console.WriteLine($"Nearest city: {nearestCity.Name}");
 
-            using (var context = new SensorContext())
-            {
-                var currentLocation = new Point(0, 0);
+                var currentState = db.States
+                    .FirstOrDefault(s => s.Border.Contains(currentLocation));
+                Console.WriteLine($"Current state: {currentState.Name}");
 
-                // Step 2: To use tag in follow query add following code after context.Measurements
-                // .WithTag("This is my spatial query!")
-                var nearestMesurements =
-                    from m in context.Measurements
-                    where m.Location.Distance(currentLocation) < 2.5
-                    orderby m.Location.Distance(currentLocation) descending
-                    select m;
+                var route = new GeoJsonReader().Read<ILineString>(File.ReadAllText("seattle-to-new-york.json"));
+                route.SRID = 4326;
 
-                foreach (var m in nearestMesurements)
+                var statesCrossed = Enumerable.ToList(
+                    from s in db.States
+                    where s.Border == null ? false : s.Border.Intersects(route)
+                    orderby s.Border.Distance(currentLocation)
+                    select s);
+                Console.WriteLine("States crossed:");
+                foreach (var state in statesCrossed)
                 {
-                    Console.WriteLine($"A temperature of {m.Temperature} was detected on {m.Time} at {m.Location}.");
+                    Console.WriteLine($"\t{state.Name}");
                 }
+
+                Console.WriteLine();
+                Console.Write("Press any key to continue . . . ");
+                Console.ReadKey(intercept: true);
             }
         }
-    }
-
-    public class SensorContext : DbContext
-    {
-        private static readonly ILoggerFactory _loggerFactory = new LoggerFactory()
-            .AddConsole((s, l) => l == LogLevel.Information && s.EndsWith("Command"));
-
-        public DbSet<Measurement> Measurements { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            // Step 1: To swith to Sqlite provider, remove call to UseSqlServer and add following
-            // .UseSqlite("filename=demo.db", sqlOptions => sqlOptions.UseNetTopologySuite())
-            optionsBuilder
-                .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Demo.Spatial;Trusted_Connection=True;ConnectRetryCount=0",
-                        sqlOptions => sqlOptions.UseNetTopologySuite())
-                .UseLoggerFactory(_loggerFactory);
-        }
-
-        public void SetupDatabase()
-        {
-            Database.EnsureDeleted();
-            Database.EnsureCreated();
-            AddRange(
-              new Measurement { Time = DateTime.Now, Location = new Point(0, 0), Temperature = 0.0 },
-              new Measurement { Time = DateTime.Now, Location = new Point(1, 1), Temperature = 0.1 },
-              new Measurement { Time = DateTime.Now, Location = new Point(1, 2), Temperature = 0.2 },
-              new Measurement { Time = DateTime.Now, Location = new Point(2, 1), Temperature = 0.3 },
-              new Measurement { Time = DateTime.Now, Location = new Point(2, 2), Temperature = 0.4 });
-            SaveChanges();
-        }
-    }
-
-    public class Measurement
-    {
-        public int Id { get; set; }
-        public DateTime Time { get; set; }
-        public Point Location { get; set; }
-        public double Temperature { get; set; }
     }
 }
