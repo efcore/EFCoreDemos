@@ -22,9 +22,6 @@ namespace Demos
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
 
-                Console.WriteLine("Database created.");
-                Console.ReadLine();
-
                 // Add some data...
                 context.Blogs.AddRange(
                     new Blog
@@ -86,33 +83,19 @@ namespace Demos
 
             using (var context = new BloggingContext())
             {
-                Console.WriteLine("Executing query for all blogs...");
-
-                foreach (var blog in context.Blogs)
-                {
-                    Console.WriteLine($"{blog.Name} - {blog.Url}");
-                }
-
-                Console.ReadLine();
-                Console.WriteLine("Loading posts for ADO.NET blog...");
-
                 var adonetBlog = context.Blogs.Single(b => b.Name == "ADO.NET");
 
-                context.Entry(adonetBlog).Collection(b => b.Posts).Load();
+                Console.WriteLine($"{adonetBlog.Name} - {adonetBlog.Url}");
 
-                foreach (var post in adonetBlog.Posts)
+                foreach (var post in context.Posts.Where(p => p.BlogId == adonetBlog.BlogId))
                 {
                     Console.WriteLine($" - {post.Title}");
+                    foreach (var tag in post.Tags)
+                    {
+                        Console.WriteLine($"   - {tag.Name}");
+                    }
                 }
 
-                Console.ReadLine();
-                Console.Write("Modifying post of the blog...");
-
-                adonetBlog.Posts[0].Content = "Content Removed";
-
-                var affected = context.SaveChanges();
-
-                Console.WriteLine($"Saved {affected} records to Cosmos DB");
                 Console.ReadLine();
             }
         }
@@ -150,6 +133,7 @@ namespace Demos
     public class Post
     {
         public int PostId { get; set; }
+        public int BlogId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
         public List<Tag> Tags { get; set; }
