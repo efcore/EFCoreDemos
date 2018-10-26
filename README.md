@@ -7,3 +7,5 @@ Here we keep the source code for some demos we ususually use for conference talk
 
 The compiled query demo requires the AdventureWorks database installed on an instance of SQL Server.
 All the other demos are self-contained.
+
+The location of these demos may change in the future. Save a bookmart to https://aka.ms/efcoredemos which should be updated. 
